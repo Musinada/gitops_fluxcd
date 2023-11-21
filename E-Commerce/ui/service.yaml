@@ -1,0 +1,74 @@
+#Comment this if dont want to use ingress for creating load balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui-service-nodeport
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  type: NodePort
+  selector:
+    name: ui
+    instance: ui
+    component: service
+    app: E-commerce-app
+
+---
+
+#Uncomment this If want to deploy Internet Facing NLB Load balancer with target type as Instance ID.
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: ui-service-loadbalancer
+#   labels:
+#     name: ui
+#     instance: ui
+#     component: service
+#     app: E-commerce-app
+#   annotations:
+#     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+#     service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     name: ui
+#     instance: ui
+#     component: service
+#     app: E-commerce-app
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       targetPort: 8080
+
+
+---
+
+#Uncomment this If want to deploy the Internet Facing NLB Load balancer with target type as IP
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: ui-service-loadbalancer
+#   labels:
+#     name: ui
+#     instance: ui
+#     component: service
+#     app: E-commerce-app
+#   annotations:
+#     service.beta.kubernetes.io/aws-load-balancer-type: "external" 
+#     service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+#     service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     name: ui
+#     instance: ui
+#     component: service
+#     app: E-commerce-app
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       targetPort: 8080
