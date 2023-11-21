@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-mysql
+  labels:
+    name: catalog
+    instance: catalog
+    component: mysql
+    app: E-commerce-app
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+      name: mysql
+  selector:
+    name: catalog
+    instance: catalog
+    component: mysql
+    app: E-commerce-app
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog
+  labels:
+    name: catalog
+    instance: catalog
+    component: service
+    app: E-commerce-app
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    name: catalog
+    instance: catalog
+    component: service
+    app: E-commerce-app
+---
