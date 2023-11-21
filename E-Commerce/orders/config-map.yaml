@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orders
+data:
+  SPRING_PROFILES_ACTIVE: mysql,rabbitmq
+  SPRING_DATASOURCE_READER_URL: jdbc:mariadb://orders-mysql:3306/orders
+  SPRING_DATASOURCE_WRITER_URL: jdbc:mariadb://orders-mysql:3306/orders
+  SPRING_RABBITMQ_ADDRESSES: amqp://orders-rabbitmq:5672

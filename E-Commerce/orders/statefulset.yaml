@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: orders-mysql
+  labels:
+    name: orders
+    instance: orders
+    component: mysql
+    app: E-commerce-app
+spec:
+  replicas: 1
+  serviceName: orders-mysql
+  selector:
+    matchLabels:
+      name: orders
+      instance: orders
+      component: mysql
+      app: E-commerce-app
+  template:
+    metadata:
+      labels:
+        name: orders
+        instance: orders
+        component: mysql
+        app: E-commerce-app
+    spec:
+      containers:
+        - name: mysql
+          image: "mysql:5.7"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: my-secret-pw
+            - name: MYSQL_DATABASE
+              value: orders
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: orders-db
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: orders-db
+                  key: password
+          args:
+            - "--ignore-db-dir=lost+found"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+      volumes:
+      - name: data
+        emptyDir: {}
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: orders-rabbitmq
+  labels:
+    name: orders
+    instance: orders
+    component: rabbitmq
+    app: E-commerce-app
+spec:
+  replicas: 1
+  serviceName: orders-rabbitmq
+  selector:
+    matchLabels:
+      name: orders
+      instance: orders
+      component: rabbitmq
+      app: E-commerce-app
+  template:
+    metadata:
+      labels:
+        name: orders
+        instance: orders
+        component: rabbitmq
+        app: E-commerce-app
+    spec:
+      containers:
+        - name: rabbitmq
+          image: "rabbitmq:3-management"
+          imagePullPolicy: IfNotPresent
+          ports:
+          - name: amqp
+            containerPort: 5672
+            protocol: TCP
+          - name: http
+            containerPort: 15672
+            protocol: TCP
+          volumeMounts:
+          - name: data
+            mountPath: "/var/lib/rabbitmq/mnesia"
+      volumes:
+      - name: data
+        emptyDir: {}

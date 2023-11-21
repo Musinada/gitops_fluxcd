@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-mysql
+  labels:
+    name: orders
+    instance: orders
+    component: mysql
+    app: E-commerce-app
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+      name: mysql
+  selector:
+    name: orders
+    instance: orders
+    component: mysql
+    app: E-commerce-app
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-rabbitmq
+  labels:
+    name: orders
+    instance: orders
+    component: rabbitmq
+    app: E-commerce-app
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5672
+      targetPort: 5672
+      protocol: TCP
+      name: amqp
+    - port: 15672
+      targetPort: 15672
+      protocol: TCP
+      name: http
+  selector:
+    name: orders
+    instance: orders
+    component: rabbitmq
+    app: E-commerce-app
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders
+  labels:
+    name: orders
+    instance: orders
+    component: service
+    app: E-commerce-app
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    name: orders
+    instance: orders
+    component: service
+    app: E-commerce-app
