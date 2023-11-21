@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout
+  labels:
+    name: checkout
+    instance: checkout
+    component: service
+    app: E-commerce-app
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+       name: checkout
+       instance: checkout
+       component: service
+       app: E-commerce-app
+  template:
+    metadata:
+      labels:
+        name: checkout
+        instance: checkout
+        component: service
+        app: E-commerce-app
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: checkout
+      containers:
+        - name: checkout
+          envFrom:
+            - configMapRef:
+                name: checkout
+          image: "public.ecr.aws/aws-containers/retail-store-sample-checkout:0.5.0"
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+            value: http://adot-collector.adot-collector-kubeprometheus:4317
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 3
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 128m
+              memory: 256Mi
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp-volume
+      volumes:
+        - name: tmp-volume
+          emptyDir:
+            medium: Memory
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-redis
+  labels:
+    name: checkout
+    instance: checkout
+    component: redis
+    app: E-commerce-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: checkout
+      instance: checkout
+      component: redis
+      app: E-commerce-app
+  template:
+    metadata:
+      labels:
+        name: checkout
+        instance: checkout
+        component: redis
+        app: E-commerce-app
+    spec:
+      containers:
+        - name: redis
+          image: "redis:6.0-alpine"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: redis
+              containerPort: 6379
+              protocol: TCP
