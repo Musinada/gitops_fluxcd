@@ -3,6 +3,6 @@ flux bootstrap github
   --owner= Musinada
   --repository=gitops_fluxcd 
   --branch=main 
-  --path=clusters/my-cluster 
+  --path=clusters/eks-cluster 
   --personal
   
